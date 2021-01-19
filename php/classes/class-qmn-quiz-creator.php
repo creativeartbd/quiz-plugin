@@ -110,7 +110,7 @@ class QMNQuizCreator
 				'comment_section'          => 1,
 				'question_from_total'      => 0,
 				'total_user_tries'         => 0,
-				'total_user_tries_text'    => 'You have utilized all of your attempts to pass this quiz.',
+				'total_user_tries_text'    => 'ওহ! আপনি এই কুইজটি একবার খেলে ফেলেছেন কারন প্রতিটি কুইজ আপনি ১বারই খেলতে পারবনে। ধন্যবাদ। .',
 				'certificate_template'     => '',
 				'social_media'             => 0,
 				'social_media_text'        => 'I just scored %CORRECT_SCORE%% on %QUIZ_NAME%!',
