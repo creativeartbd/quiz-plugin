@@ -560,8 +560,8 @@ function qsm_create_new_quiz_wizard()
                             <div id="accordion">
                                 <h3><?php _e('Quiz Settings', 'quiz-master-next'); ?></h3>
                                 <div id="quiz_settings_wrapper"></div>
-                                <h3><?php _e('Recommended Addons', 'quiz-master-next'); ?></h3>
-                                <div id="recomm_addons_wrapper"></div>
+                                <!-- <h3><?php _e('Recommended Addons', 'quiz-master-next'); ?></h3>
+                                <div id="recomm_addons_wrapper"></div> -->
                             </div>
                         </div>
                     </form>
