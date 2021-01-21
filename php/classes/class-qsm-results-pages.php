@@ -1,11 +1,12 @@
 <?php
+
 /**
  * Handles relevant functions for results pages
  *
  * @package QSM
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (!defined('ABSPATH')) {
 	exit;
 }
 
@@ -14,7 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 6.2.0
  */
-class QSM_Results_Pages {
+class QSM_Results_Pages
+{
 
 	/**
 	 * Creates the HTML for the results page.
@@ -23,22 +25,23 @@ class QSM_Results_Pages {
 	 * @param array $response_data The data for the user's submission.
 	 * @return string The HTML for the page to be displayed.
 	 */
-	public static function generate_pages( $response_data ) {
-		$pages            = QSM_Results_Pages::load_pages( $response_data['quiz_id'] );
+	public static function generate_pages($response_data)
+	{
+		$pages            = QSM_Results_Pages::load_pages($response_data['quiz_id']);
 		$default          = '%QUESTIONS_ANSWERS%';
 		$redirect         = false;
 		$default_redirect = false;
 		ob_start();
-		?>
+?>
 		<div class="qsm-results-page">
 			<?php
-			do_action( 'qsm_before_results_page' );
+			do_action('qsm_before_results_page');
 
 			// Cycles through each possible page.
-			foreach ( $pages as $page ) {
+			foreach ($pages as $page) {
 
 				// Checks if any conditions are present. Else, set it as the default.
-				if ( ! empty( $page['conditions'] ) ) {
+				if (!empty($page['conditions'])) {
 					/**
 					 * Since we have many conditions to test, we set this to true first.
 					 * Then, we test each condition to see if it fails.
@@ -49,11 +52,11 @@ class QSM_Results_Pages {
 					$show = true;
 
 					// Cycle through each condition to see if we should show this page.
-					foreach ( $page['conditions'] as $condition ) {
+					foreach ($page['conditions'] as $condition) {
 						$value = $condition['value'];
 
 						// First, determine which value we need to test.
-						switch ( $condition['criteria'] ) {
+						switch ($condition['criteria']) {
 							case 'score':
 								$test = $response_data['total_score'];
 								break;
@@ -68,40 +71,40 @@ class QSM_Results_Pages {
 						}
 
 						// Then, determine how to test the vaue.
-						switch ( $condition['operator'] ) {
+						switch ($condition['operator']) {
 							case 'greater-equal':
-								if ( $test < $value ) {
+								if ($test < $value) {
 									$show = false;
 								}
 								break;
 
 							case 'greater':
-								if ( $test <= $value ) {
+								if ($test <= $value) {
 									$show = false;
 								}
 								break;
 
 							case 'less-equal':
-								if ( $test > $value ) {
+								if ($test > $value) {
 									$show = false;
 								}
 								break;
 
 							case 'less':
-								if ( $test >= $value ) {
+								if ($test >= $value) {
 									$show = false;
 								}
 								break;
 
 							case 'not-equal':
-								if ( $test == $value ) {
+								if ($test == $value) {
 									$show = false;
 								}
 								break;
 
 							case 'equal':
 							default:
-								if ( $test != $value ) {
+								if ($test != $value) {
 									$show = false;
 								}
 								break;
@@ -117,45 +120,45 @@ class QSM_Results_Pages {
 						 * DO NOT RETURN TRUE IF IT PASSES THE CONDITION!!!
 						 * The value may have been set to false when failing a previous condition.
 						 */
-						$show = apply_filters( 'qsm_results_page_condition_check', $show, $condition, $response_data );
+						$show = apply_filters('qsm_results_page_condition_check', $show, $condition, $response_data);
 					}
 
 					// If we passed all conditions, show this page.
-					if ( $show ) {
+					if ($show) {
 						$content = $page['page'];
-						if ( $page['redirect'] ) {
+						if ($page['redirect']) {
 							$redirect = $page['redirect'];
 						}
 					}
 				} else {
 					$default = $page['page'];
-					if ( $page['redirect'] ) {
+					if ($page['redirect']) {
 						$default_redirect = $page['redirect'];
 					}
 				}
 			}
 
 			// If no page was set to the content, set to the page that was a default page.
-			if ( empty( $content ) ) {
+			if (empty($content)) {
 				$content = $default;
 			}
 
 			// If no redirect was set, set to default redirect.
-			if ( ! $redirect ) {
+			if (!$redirect) {
 				$redirect = $default_redirect;
 			}
 
 			// Decodes special characters, runs through our template
 			// variables, and then outputs the text.
-			$page = htmlspecialchars_decode( $content, ENT_QUOTES );
-			$page = apply_filters( 'mlw_qmn_template_variable_results_page', $page, $response_data );
-			echo str_replace( "\n", '<br>', $page );
-			do_action( 'qsm_after_results_page' );
+			$page = htmlspecialchars_decode($content, ENT_QUOTES);
+			$page = apply_filters('mlw_qmn_template_variable_results_page', $page, $response_data);
+			echo str_replace("\n", '<br>', $page);
+			do_action('qsm_after_results_page');
 			?>
 		</div>
-		<?php
+<?php
 		return array(
-			'display'  => do_shortcode( ob_get_clean() ),
+			'display'  => do_shortcode(ob_get_clean()),
 			'redirect' => $redirect,
 		);
 	}
@@ -167,30 +170,31 @@ class QSM_Results_Pages {
 	 * @param int $quiz_id The ID for the quiz.
 	 * @return bool|array The array of pages or false.
 	 */
-	public static function load_pages( $quiz_id ) {
+	public static function load_pages($quiz_id)
+	{
 		$pages   = array();
-		$quiz_id = intval( $quiz_id );
+		$quiz_id = intval($quiz_id);
 
 		// If the parameter supplied turns to 0 after intval, returns false.
-		if ( 0 === $quiz_id ) {
+		if (0 === $quiz_id) {
 			return false;
 		}
 
 		global $wpdb;
-		$results = $wpdb->get_var( $wpdb->prepare( "SELECT message_after FROM {$wpdb->prefix}mlw_quizzes WHERE quiz_id = %d", $quiz_id ) );
+		$results = $wpdb->get_var($wpdb->prepare("SELECT message_after FROM {$wpdb->prefix}mlw_quizzes WHERE quiz_id = %d", $quiz_id));
 
 		// Checks if the results is an array.
-		if ( is_serialized( $results ) && is_array( maybe_unserialize( $results ) ) ) {
-			$results = maybe_unserialize( $results );
+		if (is_serialized($results) && is_array(maybe_unserialize($results))) {
+			$results = maybe_unserialize($results);
 
 			// Checks if the results array is not the newer version.
-			if ( ! empty( $results ) && ! isset( $results[0]['conditions'] ) ) {
-				$pages = QSM_Results_Pages::convert_to_new_system( $quiz_id );
+			if (!empty($results) && !isset($results[0]['conditions'])) {
+				$pages = QSM_Results_Pages::convert_to_new_system($quiz_id);
 			} else {
 				$pages = $results;
 			}
 		} else {
-			$pages = QSM_Results_Pages::convert_to_new_system( $quiz_id );
+			$pages = QSM_Results_Pages::convert_to_new_system($quiz_id);
 		}
 
 		return $pages;
@@ -203,12 +207,13 @@ class QSM_Results_Pages {
 	 * @param int $quiz_id The ID for the quiz.
 	 * @return array The combined newer versions of the pages.
 	 */
-	public static function convert_to_new_system( $quiz_id ) {
+	public static function convert_to_new_system($quiz_id)
+	{
 		$pages   = array();
-		$quiz_id = intval( $quiz_id );
+		$quiz_id = intval($quiz_id);
 
 		// If the parameter supplied turns to 0 after intval, returns empty array.
-		if ( 0 === $quiz_id ) {
+		if (0 === $quiz_id) {
 			return $pages;
 		}
 
@@ -217,16 +222,16 @@ class QSM_Results_Pages {
 		 */
 		global $wpdb;
 		global $mlwQuizMasterNext;
-		$data      = $wpdb->get_row( $wpdb->prepare( "SELECT message_after FROM {$wpdb->prefix}mlw_quizzes WHERE quiz_id = %d", $quiz_id ), ARRAY_A );
-		$system    = $mlwQuizMasterNext->pluginHelper->get_section_setting( 'quiz_options', 'system', 0 );
-		$old_pages = maybe_unserialize( $data['message_after'] );
+		$data      = $wpdb->get_row($wpdb->prepare("SELECT message_after FROM {$wpdb->prefix}mlw_quizzes WHERE quiz_id = %d", $quiz_id), ARRAY_A);
+		$system    = $mlwQuizMasterNext->pluginHelper->get_section_setting('quiz_options', 'system', 0);
+		$old_pages = maybe_unserialize($data['message_after']);
 
 		// If the value is an array, convert it.
 		// If not, use it as the contents of the results page.
-		if ( is_array( $old_pages ) ) {
+		if (is_array($old_pages)) {
 
 			// Cycle through the older version of results pages.
-			foreach ( $old_pages as $page ) {
+			foreach ($old_pages as $page) {
 				$new_page = array(
 					'conditions' => array(),
 					'page'       => $page[2],
@@ -234,15 +239,15 @@ class QSM_Results_Pages {
 				);
 
 				// If the page used the older version of the redirect, add it.
-				if ( ! empty( $page['redirect_url'] ) ) {
+				if (!empty($page['redirect_url'])) {
 					$new_page['redirect'] = $page['redirect_url'];
 				}
 
 				// Checks to see if the page is not the older version's default page.
-				if ( 0 !== intval( $page[0] ) || 0 !== intval( $page[1] ) ) {
+				if (0 !== intval($page[0]) || 0 !== intval($page[1])) {
 
 					// Checks if the system is points.
-					if ( 1 === intval( $system ) ) {
+					if (1 === intval($system)) {
 						$new_page['conditions'][] = array(
 							'criteria' => 'points',
 							'operator' => 'greater-equal',
@@ -280,10 +285,10 @@ class QSM_Results_Pages {
 		// Updates the database with new array to prevent running this step next time.
 		$wpdb->update(
 			$wpdb->prefix . 'mlw_quizzes',
-			array( 'message_after' => serialize( $pages ) ),
-			array( 'quiz_id' => $quiz_id ),
-			array( '%s' ),
-			array( '%d' )
+			array('message_after' => serialize($pages)),
+			array('quiz_id' => $quiz_id),
+			array('%s'),
+			array('%d')
 		);
 
 		return $pages;
@@ -297,23 +302,24 @@ class QSM_Results_Pages {
 	 * @param array $pages The results pages to be saved.
 	 * @return bool True or false depending on success.
 	 */
-	public static function save_pages( $quiz_id, $pages ) {
-		if ( ! is_array( $pages ) ) {
+	public static function save_pages($quiz_id, $pages)
+	{
+		if (!is_array($pages)) {
 			return false;
 		}
 
-		$quiz_id = intval( $quiz_id );
-		if ( 0 === $quiz_id ) {
+		$quiz_id = intval($quiz_id);
+		if (0 === $quiz_id) {
 			return false;
 		}
 
 		// Sanitizes data in pages.
-		$total = count( $pages );
-		for ( $i = 0; $i < $total; $i++ ) {
+		$total = count($pages);
+		for ($i = 0; $i < $total; $i++) {
 
 			// jQuery AJAX will send a string version of false.
-			if ( 'false' === $pages[ $i ]['redirect'] ) {
-				$pages[ $i ]['redirect'] = false;
+			if ('false' === $pages[$i]['redirect']) {
+				$pages[$i]['redirect'] = false;
 			}
 
 			/**
@@ -321,27 +327,27 @@ class QSM_Results_Pages {
 			 * if it's empty. So, check if it's set. If set, sanitize
 			 * data. If not set, set to empty array.
 			 */
-			if ( isset( $pages[ $i ]['conditions'] ) ) {
+			if (isset($pages[$i]['conditions'])) {
 				// Sanitizes the conditions.
-				$total_conditions = count( $pages[ $i ]['conditions'] );
-				for ( $j = 0; $j < $total_conditions; $j++ ) {
-					$pages[ $i ]['conditions'][ $j ]['value'] = sanitize_text_field( $pages[ $i ]['conditions'][ $j ]['value'] );
+				$total_conditions = count($pages[$i]['conditions']);
+				for ($j = 0; $j < $total_conditions; $j++) {
+					$pages[$i]['conditions'][$j]['value'] = sanitize_text_field($pages[$i]['conditions'][$j]['value']);
 				}
 			} else {
-				$pages[ $i ]['conditions'] = array();
+				$pages[$i]['conditions'] = array();
 			}
 		}
 
 		global $wpdb;
 		$results = $wpdb->update(
 			$wpdb->prefix . 'mlw_quizzes',
-			array( 'message_after' => serialize( $pages ) ),
-			array( 'quiz_id' => $quiz_id ),
-			array( '%s' ),
-			array( '%d' )
+			array('message_after' => serialize($pages)),
+			array('quiz_id' => $quiz_id),
+			array('%s'),
+			array('%d')
 		);
-                do_action('qsm_save_result_pages');
-		if ( false !== $results ) {
+		do_action('qsm_save_result_pages');
+		if (false !== $results) {
 			return true;
 		} else {
 			return false;

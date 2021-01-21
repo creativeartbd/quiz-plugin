@@ -45,6 +45,25 @@ class QSM_Install
 
     global $mlwQuizMasterNext;
 
+    //Setting for pagination of quiz
+    $field_array = array(
+      'id' => 'is_publish_result',
+      'label' => __('Publish quiz result?', 'quiz-master-next'),
+      'type' => 'radio',
+      'options' => array(
+        array(
+          'label' => __('Yes', 'quiz-master-next'),
+          'value' => 1
+        ),
+        array(
+          'label' => __('No', 'quiz-master-next'),
+          'value' => 0
+        ),
+      ),
+      'default' => 0,
+    );
+    $mlwQuizMasterNext->pluginHelper->register_quiz_setting($field_array, 'quiz_options');
+
     // Registers system setting
     $field_array = array(
       'id' => 'form_type',
@@ -1245,6 +1264,7 @@ class QSM_Install
   			quiz_taken INT NOT NULL,
   			deleted INT NOT NULL,
                         quiz_author_id INT NOT NULL,
+                        is_publish INT
   			PRIMARY KEY  (quiz_id)
   		) $charset_collate;";
 

@@ -641,8 +641,8 @@ class QMNQuizManager
         $quiz_display = apply_filters('qmn_end_quiz_form', $quiz_display, $options, $quiz_data);
         $quiz_display .= '</form>';
         $quiz_display .= '</div>';
-
         $quiz_display = apply_filters('qmn_end_quiz', $quiz_display, $options, $quiz_data);
+
         return $quiz_display;
     }
 
@@ -713,9 +713,12 @@ class QMNQuizManager
                     </div>
                 <?php
                 }
+
+                $quiz_counter = 0;
                 foreach ($pages[0] as $question_id) {
                     $question_list .= $question_id . 'Q';
                     $question = $questions[$question_id];
+                    $quiz_counter++;
                 ?>
                     <div class='quiz_section question-section-id-<?php echo esc_attr($question_id); ?>'>
                         <?php
@@ -732,12 +735,17 @@ class QMNQuizManager
                         }
                         ?>
                     </div>
-                <?php
+                    <?php
+                    if ($quiz_counter % 2 == 0) {
+                        if (is_active_sidebar('between-quiz')) {
+                            dynamic_sidebar('between-quiz');
+                        }
+                    }
                 }
                 if (0 == $options->comment_section) {
                     $message_comments = wpautop(htmlspecialchars_decode($options->message_comment, ENT_QUOTES));
                     $message_comments = apply_filters('mlw_qmn_template_variable_quiz_page', $message_comments, $quiz_data);
-                ?>
+                    ?>
                     <div class="quiz_section quiz_begin">
                         <label for='mlwQuizComments' class='qsm-comments-label mlw_qmn_comment_section_text'><?php echo $message_comments; ?></label>
                         <textarea id='mlwQuizComments' name='mlwQuizComments' class='qsm-comments qmn_comment_section'></textarea>
